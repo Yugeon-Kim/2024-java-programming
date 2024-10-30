@@ -21,7 +21,7 @@ public class Calcualator extends JFrame {
 		String btn_s = ((JButton) e.getSource()).getText();
 		
 		if (btn_s.equals("=")) {
-			if(result.indexOf(".")==-1) {
+			if(result.indexOf(".")==-1) { 
 				int_double="int";
 			}
 			else {
@@ -76,6 +76,8 @@ public class Calcualator extends JFrame {
 		}
 		else if (btn_s.equals("C")) {
 			result="0";
+			result_int= 0;
+			result_double= 0;
 			text.setText("0");
 		}
 		else if (btn_s.equals("CE")) {
@@ -103,26 +105,30 @@ public class Calcualator extends JFrame {
 		} 
 		else if (btn_s.equals("1/x")) {
 			state=btn_s;
+			
 			result=text.getText();
 		} 
 		else if (btn_s.equals("x^2")) {
 			result = text.getText();
-				if (int_double == "double") {
-					result_double = (Double.parseDouble(result) * 2);
-					text.setText(Double.toString(result_double));
+			if(result.indexOf(".")==-1) { 
+				result_double = (Double.parseDouble(result) * 2);
+				text.setText(Double.toString(result_double));
 			}
 			else {
-				if (int_double == "int") {
-					result_int =(Integer.parseInt(result) * 2);
-					text.setText(Integer.toString(result_int));
-				}
+				result_int =(Integer.parseInt(result) * 2);
+				text.setText(Integer.toString(result_int));
 			}
+			
+				
 		} 
 		else if (btn_s.equals("2/x")) {
-			state=btn_s;
+			state="2/x";
 			result=text.getText();
+			result_double=Math.sqrt(Double.parseDouble(result));
+			text.setText(Double.toString(result_double));
 		} 
 		else if (btn_s.equals("+/-")) {
+			
 			result=text.getText();
 			if(result.indexOf("-")==-1) {
 				text.setText("-"+result);
@@ -133,14 +139,19 @@ public class Calcualator extends JFrame {
 			
 		} 
 		else if (btn_s.equals(".")) {
-			int_double = "double";
 			result=text.getText();
+			text.setText(result+".");
 		} 
 		else {
 			if (currentText.equals("0")) {
 				text.setText(btn_s);
 			} else {
-				text.setText(currentText + btn_s);
+				if (state == "2/x") {
+					text.setText(btn_s);
+					state = "";
+				} else {
+					text.setText(currentText + btn_s);
+				}
 			}
 		}
 	};
