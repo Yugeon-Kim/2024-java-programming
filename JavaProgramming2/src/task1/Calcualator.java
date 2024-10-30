@@ -104,9 +104,10 @@ public class Calcualator extends JFrame {
 			text.setText("0");
 		} 
 		else if (btn_s.equals("1/x")) {
-			state=btn_s;
 			
 			result=text.getText();
+			result_double = (1/Double.parseDouble(result) );
+			text.setText(Double.toString(result_double));
 		} 
 		else if (btn_s.equals("x^2")) {
 			result = text.getText();
