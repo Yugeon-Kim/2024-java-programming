@@ -2,7 +2,8 @@
 
 `Calculator` 클래스는 자바 스윙(`Swing`)을 활용한 GUI 기반의 계산기 애플리케이션입니다. 이 애플리케이션은 기본적인 덧셈, 뺄셈, 곱셈, 나눗셈을 포함한 다양한 연산 기능을 제공합니다.
 
-![image](https://github.com/user-attachments/assets/3109e5ac-c994-447b-88d0-a339dc670ab6)
+![image](https://github.com/user-attachments/assets/b8c1135f-118f-4fa9-aeb2-d0f6753742d6)
+
 
 
 
