@@ -41,96 +41,115 @@ public class Calcualator extends JFrame {
     
     /** 실수 계산 결과 */
     double result_double;
+    boolean clearExpressionAfterEqual = false;  // = 후 계산식 초기화를 위한 플래그
     
-    /** 버튼 클릭 이벤트 리스너 */
     ActionListener listener = e -> {
-        // 현재 텍스트 필드의 내용
         String currentText = text.getText();
-        // 클릭한 버튼의 텍스트
         String btn_s = ((JButton) e.getSource()).getText();
-        
+
         // "=" 버튼 클릭 시
+        /**
+         * "=" 버튼을 클릭하면 현재 입력된 값과 이전 결과를 기반으로 계산을 수행합니다.
+         * 연산 결과를 텍스트 필드에 표시하고, 계산식도 업데이트합니다.
+         * 
+         * @throws NumberFormatException 숫자 형식이 올바르지 않을 때 발생
+         */
         if (btn_s.equals("=")) {
-            expression += currentText + " = ";  // 최종 식에 현재 값과 "=" 추가
-            
-            // 결과가 없거나 현재 텍스트가 비어있으면 종료
-            if (result == null || currentText.isEmpty()) {
-                return;
-            }
-            
-            // 현재 텍스트와 결과가 정수인지 실수인지 확인
+            expression += currentText + " = ";  // 계산식에 현재 값과 "=" 추가
+            clearExpressionAfterEqual = true;  // 다음 입력 시 계산식 초기화 플래그 설정
+
+            if (result == null || currentText.isEmpty()) return;
+
+            // 현재 값과 기존 결과의 정수/실수 여부 확인
             boolean isCurrentTextDouble = currentText.contains(".");
             boolean isResultDouble = result.contains(".");
-          
-            if (!isCurrentTextDouble && !isResultDouble) {
-                int_double = "int";
-            } else {
-                int_double = "double";
-            }
-            
+
+            int_double = (!isCurrentTextDouble && !isResultDouble) ? "int" : "double";
+
             try {
                 if (state != null) {
+                    // 덧셈 연산
                     if (state.equals("+")) {
                         if (int_double.equals("int")) {
                             result_int = Integer.parseInt(result) + Integer.parseInt(currentText);
-                            text.setText(Integer.toString(result_int));
+                            result = Integer.toString(result_int);
                         } else {
                             result_double = Double.parseDouble(result) + Double.parseDouble(currentText);
-                            text.setText(Double.toString(result_double));
+                            result = Double.toString(result_double);
                         }
-                    } else if (state.equals("-")) {
+                    }
+                    // 뺄셈 연산
+                    else if (state.equals("-")) {
                         if (int_double.equals("int")) {
                             result_int = Integer.parseInt(result) - Integer.parseInt(currentText);
-                            text.setText(Integer.toString(result_int));
+                            result = Integer.toString(result_int);
                         } else {
                             result_double = Double.parseDouble(result) - Double.parseDouble(currentText);
-                            text.setText(Double.toString(result_double));
+                            result = Double.toString(result_double);
                         }
-                    } else if (state.equals("/")) {
-                        if (Integer.parseInt(currentText) == 0) {
+                    }
+                    // 나눗셈 연산
+                    else if (state.equals("/")) {
+                        if (Double.parseDouble(currentText) == 0) {
                             text.setText("Error: Division by zero");
                             return;
                         }
                         if (int_double.equals("int")) {
                             result_int = Integer.parseInt(result) / Integer.parseInt(currentText);
-                            text.setText(Integer.toString(result_int));
+                            result = Integer.toString(result_int);
                         } else {
                             result_double = Double.parseDouble(result) / Double.parseDouble(currentText);
-                            text.setText(Double.toString(result_double));
+                            result = Double.toString(result_double);
                         }
-                    } else if (state.equals("x")) {
-                    	
-                    	    if (int_double.equals("int")) {
-                    	        result_int = Integer.parseInt(result) * Integer.parseInt(currentText);
-                    	        text.setText(Integer.toString(result_int));
-                    	    } else {
-                    	    	result_double = Double.parseDouble(result) * Double.parseDouble(currentText);
-                    	        text.setText(Double.toString(result_double));
-                    	    }
-                    	}
+                    }
+                    // 곱셈 연산
+                    else if (state.equals("x")) {
+                        if (int_double.equals("int")) {
+                            result_int = Integer.parseInt(result) * Integer.parseInt(currentText);
+                            result = Integer.toString(result_int);
+                        } else {
+                            result_double = Double.parseDouble(result) * Double.parseDouble(currentText);
+                            result = Double.toString(result_double);
+                        }
+                    }
                 }
             } catch (NumberFormatException ex) {
+                /**
+                 * 숫자 형식이 올바르지 않을 때 발생하는 예외로, 
+                 * 입력된 값이 숫자로 변환할 수 없는 경우 처리됩니다.
+                 * 
+                 * 출처: ChatGPT
+                 */
                 text.setText("Error: Invalid input");
+                result = "0";
             }
 
-            result = text.getText();  // 결과를 업데이트
-            state = null;
-            expression = "";  // 계산 후 식 초기화
-            expresstext.setText("");  // 식 텍스트 초기화
+            text.setText(result);  // 결과 표시
+            state = null;  // 연산 상태 초기화
+            expresstext.setText(expression);  // 계산식 표시 유지
         }
         // 연산자 버튼 클릭 시
+        /**
+         * "+", "-", "/", "x" 버튼을 클릭하면 현재 입력된 값과 이전 결과를 기반으로 
+         * 다음 연산을 설정합니다. 연산자가 변경될 때마다 계산식을 업데이트하고, 
+         * 현재 입력된 값을 기반으로 결과를 계산합니다.
+         * 
+         * @throws NumberFormatException 숫자 형식이 올바르지 않을 때 발생
+         */
         else if (btn_s.equals("+") || btn_s.equals("-") || btn_s.equals("/") || btn_s.equals("x")) {
-            expression += currentText + " " + btn_s + " ";  // 연산자와 현재 값 추가
-            
+            if (clearExpressionAfterEqual) {
+                expression = ""; // = 이후 새로운 계산 시 식 초기화
+                clearExpressionAfterEqual = false;
+            }
+
             boolean isCurrentTextDouble = currentText.contains(".");
             boolean isResultDouble = result.contains(".");
-            
+
             if (!isCurrentTextDouble && !isResultDouble) {
                 int_double = "int";
             } else {
                 int_double = "double";
             }
-
             if (state != null) {
                 try {
                     if (int_double.equals("int")) {
@@ -139,11 +158,12 @@ public class Calcualator extends JFrame {
                         } else if (state.equals("-")) {
                             result_int -= Integer.parseInt(currentText);
                         } else if (state.equals("/")) {
-                            if (Integer.parseInt(currentText) == 0) {
-                                text.setText("Error: Division by zero");
+                            if (Integer.parseInt(currentText) != 0) {
+                                result_int /= Integer.parseInt(currentText);
+                            } else {
+                                text.setText("Error");
                                 return;
                             }
-                            result_int /= Integer.parseInt(currentText);
                         } else if (state.equals("x")) {
                             result_int *= Integer.parseInt(currentText);
                         }
@@ -155,11 +175,12 @@ public class Calcualator extends JFrame {
                         } else if (state.equals("-")) {
                             result_double -= Double.parseDouble(currentText);
                         } else if (state.equals("/")) {
-                            if (Double.parseDouble(currentText) == 0) {
-                                text.setText("Error: Division by zero");
+                            if (Double.parseDouble(currentText) != 0) {
+                                result_double /= Double.parseDouble(currentText);
+                            } else {
+                                text.setText("Error");
                                 return;
                             }
-                            result_double /= Double.parseDouble(currentText);
                         } else if (state.equals("x")) {
                             result_double *= Double.parseDouble(currentText);
                         }
@@ -167,7 +188,13 @@ public class Calcualator extends JFrame {
                         result = Double.toString(result_double);
                     }
                 } catch (NumberFormatException ex) {
-                    text.setText("Error: Invalid input");
+                    /**
+                     * 숫자 형식이 올바르지 않을 때 발생하는 예외로, 
+                     * 입력된 값이 숫자로 변환할 수 없는 경우 처리됩니다.
+                     * 
+                     * 출처: ChatGPT
+                     */
+                    text.setText("Error");
                     return;
                 }
             } else {
@@ -180,11 +207,22 @@ public class Calcualator extends JFrame {
                     int_double = "int";
                 }
             }
-            
+
             state = btn_s;
+            expression += currentText + " " + btn_s + " ";  
             text.setText("0");
-            expresstext.setText(expression);  // 계산식 업데이트
+            expresstext.setText(expression); // 계산식 업데이트
         }
+
+        // clearExpressionAfterEqual에 대한 출처
+        /**
+         * clearExpressionAfterEqual 변수는 "=" 버튼 클릭 후 다음 입력 시 
+         * 계산식을 초기화하는 플래그입니다. 이 변수는 사용자가 "=" 버튼을 클릭한 후 
+         * 새로운 계산을 시작할 때 이전 계산식이 남아있지 않도록 합니다.
+         * 출처: ChatGPT
+         */
+        // 숫자 및 기타 버튼 처리
+       
         // "C" 버튼 클릭 시
         else if (btn_s.equals("C")) {
             result = "0";
@@ -253,12 +291,14 @@ public class Calcualator extends JFrame {
                 text.setText("Error: Invalid input");
             }
         }
-        // "+/-" 버튼 클릭 시 @수정 result 값에 -를 안넣고 저장함
+        // "+/-" 버튼 클릭 시 @수정 currentText 값에 -를 안넣고 저장함
+        
         else if (btn_s.equals("+/-")) {
-            result = text.getText();
-            if (result.indexOf("-") == -1) {
-            	result="-"+result;
-                text.setText(result);
+        	
+            if (currentText.indexOf("-") == -1) {
+            	currentText="-"+currentText;
+            	System.out.println(currentText);
+                text.setText(currentText);
             } else {
                 text.setText(result.substring(1));
             }
@@ -273,21 +313,20 @@ public class Calcualator extends JFrame {
         }
         // 숫자 버튼 클릭 시
         else {
-            if (currentText.equals("0")) {
-                text.setText(btn_s);  // 처음 숫자 입력
-            } else {
-                text.setText(currentText + btn_s);  // 기존 숫자 뒤에 추가
+            if (clearExpressionAfterEqual) {
+                expression = "";  // 새 계산 시작 시 계산식 초기화
+                clearExpressionAfterEqual = false;
             }
-            result = text.getText();  // 현재 텍스트 필드의 값을 result에 업데이트
+            text.setText(currentText.equals("0") ? btn_s : currentText + btn_s);  // 숫자 이어 붙이기
         }
         expresstext.setText(expression);  // 계산식 업데이트
     };
-
     /**
      * Calculator 클래스의 생성자. 
      * GUI 구성 요소를 초기화하고 기본 설정을 적용합니다.
      */
     public Calcualator() {
+    	
         result = "0";
         text = new JTextField("0");
         text.setEditable(false);
